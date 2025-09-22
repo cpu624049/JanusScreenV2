@@ -25,7 +25,7 @@ class PrivacyApp extends StatelessWidget {
 			title: 'Privacy Foveation Prototype',
 			debugShowCheckedModeBanner: false,
 			theme: base.copyWith(
-				cardTheme: CardTheme(
+				cardTheme: CardThemeData(
 					shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
 					elevation: 2,
 					margin: EdgeInsets.zero,
@@ -115,6 +115,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 				}
 				break;
 			case AppLifecycleState.detached:
+				break;
+			default:
 				break;
 		}
 	}
@@ -344,16 +346,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 	}
 
 	Shader _buildShader(Size size, Offset center) {
-		final uniforms = Float32List.fromList([
-			size.width, size.height,
-			center.dx, center.dy,
-			_focusRadius,
-			_focusRadius * 0.9,
-			_grain.clamp(0.0, 1.0),
-			_patternType.clamp(0.0, 3.0),
-		]);
-		return _program!.fragmentShader()
-			..setFloatUniforms(uniforms);
+		final shader = _program!.fragmentShader();
+		// Web 호환: 한 개씩 순서대로 setFloat 호출
+		shader.setFloat(0, size.width);
+		shader.setFloat(1, size.height);
+		shader.setFloat(2, center.dx);
+		shader.setFloat(3, center.dy);
+		shader.setFloat(4, _focusRadius);
+		shader.setFloat(5, _focusRadius * 0.9);
+		shader.setFloat(6, _grain.clamp(0.0, 1.0));
+		shader.setFloat(7, _patternType.clamp(0.0, 3.0));
+		return shader;
 	}
 
 	@override
@@ -365,7 +368,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 					IconButton(
 						tooltip: '안내',
 						icon: const Icon(Icons.info_outline),
-						onPressed: _showPrivacyInfo,
+						onPressed: () => _showPrivacyInfo(context),
 					),
 					IconButton(
 						tooltip: '카메라',
@@ -727,7 +730,7 @@ class _SettingsSheetState extends State<_SettingsSheet> {
 						value: _r,
 						min: 80,
 						max: 260,
-						disions: 18,
+						divisions: 18,
 						onChanged: (v) => setState(() => _r = v),
 					),
 					Text('블러 강도: ${_b.toStringAsFixed(0)}'),
@@ -735,7 +738,7 @@ class _SettingsSheetState extends State<_SettingsSheet> {
 						value: _b,
 						min: 2,
 						max: 18,
-						disions: 16,
+						divisions: 16,
 						onChanged: (v) => setState(() => _b = v),
 					),
 					Text('그레인 강도: ${_g.toStringAsFixed(2)}'),
@@ -743,7 +746,7 @@ class _SettingsSheetState extends State<_SettingsSheet> {
 						value: _g,
 						min: 0.0,
 						max: 0.5,
-						disions: 20,
+						divisions: 20,
 						onChanged: (v) => setState(() => _g = v),
 					),
 					Text('패턴 타입: ${_getPatternName(_pt)}'),
@@ -751,7 +754,7 @@ class _SettingsSheetState extends State<_SettingsSheet> {
 						value: _pt,
 						min: 0.0,
 						max: 3.0,
-						disions: 3,
+						divisions: 3,
 						onChanged: (v) => setState(() => _pt = v),
 					),
 					Text('감지 최소 간격: ${_ml.toStringAsFixed(0)} ms'),
@@ -759,7 +762,7 @@ class _SettingsSheetState extends State<_SettingsSheet> {
 						value: _ml,
 						min: 60,
 						max: 240,
-						disions: 12,
+						divisions: 12,
 						onChanged: (v) => setState(() => _ml = v),
 					),
 					const SizedBox(height: 4),
