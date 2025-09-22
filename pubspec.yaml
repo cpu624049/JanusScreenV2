@@ -1,0 +1,21 @@
+name: privacy_foveation_prototype
+description: Hardware-less mitigated privacy mode prototype with foveated overlay.
+publish_to: 'none'
+version: 0.0.1+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  camera: ^0.10.6
+  permission_handler: ^11.3.1
+  google_ml_kit: ^0.16.3
+  battery_plus: ^5.0.2
+
+flutter:
+  uses-material-design: true
+  shaders:
+    - shaders/foveation.frag
